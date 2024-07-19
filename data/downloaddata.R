@@ -24,14 +24,15 @@ ACS_data_extract <-
                      samples = "us2022a",
                      variables = variables) %>%
   submit_extract()
+# wait until extract is processed to download data
 if(is_extract_ready(ACS_data_extract)) {
   filepath <- download_extract(ACS_data_extract)
 }
 
 # download the file once processed
-ACS2022_data <- read_ipums_micro("./data/usa_00076.xml") %>%
+ACS2022_data <- read_ipums_micro(filepath) %>%
   # use labels as values
-  mutate_at(c("DEGFIELD", "OCC2010", "STATEFIP"), haven::as_factor) %>%
+  mutate_at(c("DEGFIELD", "DEGFIELDD", "OCC2010", "STATEFIP"), haven::as_factor) %>%
   filter(!INCTOT %in% c(9999998, 9999999), # remove rows with missing income values
          AGE %in% 18:65) %>% # only include people between 18 and 65 years old
   mutate(
